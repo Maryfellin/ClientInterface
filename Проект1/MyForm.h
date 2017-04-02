@@ -17,6 +17,13 @@ namespace Проект1 {
 
 	char ServerIP[] = "127.0.0.1";
 	int Port = 1509;
+	char buffer[1024] = "hello";
+	SOCKET server;
+
+
+	WSADATA WSAData;
+
+	SOCKADDR_IN addr;
 
 	/// <summary>
 	/// Сводка для MyForm
@@ -24,15 +31,22 @@ namespace Проект1 {
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
 	public:
-		MyForm(void)
+		MyForm()
 		{
 			char ServerIP[] = "127.0.0.1";
 			int Port = 1509;
 			InitializeComponent();
+			button1->Enabled = false;
+			richTextBox1->Enabled = false;
+			richTextBox2->Enabled = false;
+			label5->Text = "Введите данные";
+
+			/*подгрузить настройки сервера*/
+
 			//
 			//TODO: добавьте код конструктора
 			//
-
+			
 		}
 
 	protected:
@@ -56,6 +70,7 @@ namespace Проект1 {
 	private: System::Windows::Forms::RichTextBox^  richTextBox2;
 	private: System::Windows::Forms::Label^  label3;
 	private: System::Windows::Forms::Label^  label4;
+	private: System::Windows::Forms::Label^  label5;
 	protected:
 
 	private:
@@ -81,6 +96,7 @@ namespace Проект1 {
 			this->richTextBox2 = (gcnew System::Windows::Forms::RichTextBox());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->label5 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// button1
@@ -125,7 +141,6 @@ namespace Проект1 {
 			this->label1->Size = System::Drawing::Size(95, 13);
 			this->label1->TabIndex = 4;
 			this->label1->Text = L"IP-адрес сервера";
-			this->label1->Click += gcnew System::EventHandler(this, &MyForm::label1_Click);
 			// 
 			// label2
 			// 
@@ -153,6 +168,7 @@ namespace Проект1 {
 			this->richTextBox2->Size = System::Drawing::Size(459, 176);
 			this->richTextBox2->TabIndex = 7;
 			this->richTextBox2->Text = L"";
+			this->richTextBox2->TextChanged += gcnew System::EventHandler(this, &MyForm::richTextBox2_TextChanged);
 			// 
 			// label3
 			// 
@@ -172,11 +188,21 @@ namespace Проект1 {
 			this->label4->TabIndex = 9;
 			this->label4->Text = L"Сообщение";
 			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(261, 65);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(10, 13);
+			this->label5->TabIndex = 10;
+			this->label5->Text = L" ";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(484, 424);
+			this->Controls->Add(this->label5);
 			this->Controls->Add(this->label4);
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->richTextBox2);
@@ -193,52 +219,56 @@ namespace Проект1 {
 			this->PerformLayout();
 
 		}
+
+
+
 #pragma endregion
+	private: System::Void textBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+
+			char ServerIP[] = "127.0.0.1";
+			cin >> ServerIP;
+		}
+	private: System::Void textBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+	int Port = 1509;
+	cin >> Port;
+}
+
 
 	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
-		if (ServerIP == "127.0.0.1" && Port == 1509)
-			printf("yes");
-		printf("no");
+
+		if (textBox1->Text == "127.0.0.1"){
+				button1->Enabled = true;
+				richTextBox1->Enabled = true;
+				//richTextBox2->Enabled = true;
+				label5->Text = "Вы подключились";
+				/*Подключаемся к серверу и отправляем сообщение на сервер*/
+				WSAStartup(MAKEWORD(2, 0), &WSAData);
+				server = socket(AF_INET, SOCK_STREAM, 0);
+
+				/*Указываем IP-адрес сокета,
+				к которому он должен подключиться и порт*/
+				addr.sin_addr.s_addr = inet_addr(ServerIP);
+				addr.sin_family = AF_INET;
+				addr.sin_port = htons(Port);
+				connect(server, (SOCKADDR *)&addr, sizeof(addr));
+				printf("Вы подключились к серверу!" "\n");
+			}
+		else label5->Text = "Неправильные данные";
 	}
 
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
-		WSADATA WSAData;
-		SOCKET server;
-		SOCKADDR_IN addr;
-
-		WSAStartup(MAKEWORD(2, 0), &WSAData);
-		server = socket(AF_INET, SOCK_STREAM, 0);
-
-		/*Указываем IP-адрес сокета,
-		к которому он должен подключиться и порт*/
-		addr.sin_addr.s_addr = inet_addr(ServerIP);
-		addr.sin_family = AF_INET;
-		addr.sin_port = htons(Port);
-
-		/*Подключаемся к серверу и отправляем сообщение на сервер*/
-		connect(server, (SOCKADDR *)&addr, sizeof(addr));
-		printf("Вы подключились к серверу!" "\n");
-
-		char buffer[1024] = "hello";
 		send(server, buffer, sizeof(buffer), 0);
 		printf("Сообщение отправлено." "\n");
+		
+		richTextBox2->Text = "Сообщение:";
+
 		/*Для завершения работы с сокетами*/
 		closesocket(server);
 		WSACleanup();
 		printf("Завершение");
 	}
+private: System::Void richTextBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
-private: System::Void textBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-
-	char ServerIP[] = "127.0.0.1";
-	cin >> ServerIP;
 }
-private: System::Void textBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-	int Port = 1509;
-	cin >> Port;
-}
-private: System::Void label1_Click(System::Object^  sender, System::EventArgs^  e) {
-}
-
 };
 }
