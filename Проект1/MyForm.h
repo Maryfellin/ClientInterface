@@ -2,6 +2,8 @@
 #pragma comment( lib, "ws2_32.lib" )
 #include <iostream>
 #include <stdio.h>
+#include <string>
+#include <stdlib.h>
 #include <locale.h>
 #include <winsock2.h>
 using namespace std;
@@ -16,13 +18,14 @@ namespace Проект1 {
 	using namespace System::Drawing;
 
 	char ServerIP[] = "127.0.0.1";
-	int Port = 1509;
+	char port[] = "1509";
+	int Port = atoi(port);
+	
 	char buffer[1024] = "hello";
 	SOCKET server;
 
 
 	WSADATA WSAData;
-
 	SOCKADDR_IN addr;
 
 	/// <summary>
@@ -33,8 +36,6 @@ namespace Проект1 {
 	public:
 		MyForm()
 		{
-			char ServerIP[] = "127.0.0.1";
-			int Port = 1509;
 			InitializeComponent();
 			button1->Enabled = false;
 			richTextBox1->Enabled = false;
@@ -225,21 +226,17 @@ namespace Проект1 {
 #pragma endregion
 	private: System::Void textBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
-			char ServerIP[] = "127.0.0.1";
-			cin >> ServerIP;
 		}
 	private: System::Void textBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
-	int Port = 1509;
-	cin >> Port;
+
 }
 
 
 	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
-
-		if (textBox1->Text == "127.0.0.1"){
+	
+			if (textBox1->Text == "127.0.0.1"){
 				button1->Enabled = true;
 				richTextBox1->Enabled = true;
-				//richTextBox2->Enabled = true;
 				label5->Text = "Вы подключились";
 				/*Подключаемся к серверу и отправляем сообщение на сервер*/
 				WSAStartup(MAKEWORD(2, 0), &WSAData);
@@ -251,16 +248,30 @@ namespace Проект1 {
 				addr.sin_family = AF_INET;
 				addr.sin_port = htons(Port);
 				connect(server, (SOCKADDR *)&addr, sizeof(addr));
-				printf("Вы подключились к серверу!" "\n");
+				char m[10];
+			
+				recv(server, m, 10, 0);
+				//char masiv[1024];
+				/*for (int i = 0; i < 1024; i++){
+					buffer[i] = 0;
+				}*/
+				String^ name = "";
+				for (int i = 0; i < 11; i++){
+					name += Convert::ToChar(m[i]);
+
+				}
+
+				richTextBox2->AppendText(name);
 			}
-		else label5->Text = "Неправильные данные";
+			else label5->Text = "Неправильные данные";
+		
 	}
 
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 		send(server, buffer, sizeof(buffer), 0);
-		printf("Сообщение отправлено." "\n");
 		
 		richTextBox2->Text = "Сообщение:";
+
 
 		/*Для завершения работы с сокетами*/
 		closesocket(server);
