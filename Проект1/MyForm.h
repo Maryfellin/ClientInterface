@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #pragma comment( lib, "ws2_32.lib" )
 #include <iostream>
 #include <stdio.h>
@@ -8,7 +8,7 @@
 #include <winsock2.h>
 using namespace std;
 
-namespace Проект1 {
+namespace РџСЂРѕРµРєС‚1 {
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -20,16 +20,15 @@ namespace Проект1 {
 	char ServerIP[] = "127.0.0.1";
 	char port[] = "1509";
 	int Port = atoi(port);
+
 	
-	char buffer[1024] = "hello";
+	//char buffer[1024] = "hello";
 	SOCKET server;
-
-
 	WSADATA WSAData;
 	SOCKADDR_IN addr;
 
 	/// <summary>
-	/// Сводка для MyForm
+	/// РЎРІРѕРґРєР° РґР»СЏ MyForm
 	/// </summary>
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
@@ -40,19 +39,19 @@ namespace Проект1 {
 			button1->Enabled = false;
 			richTextBox1->Enabled = false;
 			richTextBox2->Enabled = false;
-			label5->Text = "Введите данные";
+			label5->Text = "Р’РІРµРґРёС‚Рµ РґР°РЅРЅС‹Рµ";
 
-			/*подгрузить настройки сервера*/
+			/*РїРѕРґРіСЂСѓР·РёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё СЃРµСЂРІРµСЂР°*/
 
 			//
-			//TODO: добавьте код конструктора
+			//TODO: РґРѕР±Р°РІСЊС‚Рµ РєРѕРґ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°
 			//
 			
 		}
 
 	protected:
 		/// <summary>
-		/// Освободить все используемые ресурсы.
+		/// РћСЃРІРѕР±РѕРґРёС‚СЊ РІСЃРµ РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ СЂРµСЃСѓСЂСЃС‹.
 		/// </summary>
 		~MyForm()
 		{
@@ -72,18 +71,20 @@ namespace Проект1 {
 	private: System::Windows::Forms::Label^  label3;
 	private: System::Windows::Forms::Label^  label4;
 	private: System::Windows::Forms::Label^  label5;
+	private: System::Windows::Forms::TextBox^  textBox3;
+	private: System::Windows::Forms::Label^  label6;
 	protected:
 
 	private:
 		/// <summary>
-		/// Требуется переменная конструктора.
+		/// РўСЂРµР±СѓРµС‚СЃСЏ РїРµСЂРµРјРµРЅРЅР°СЏ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР°.
 		/// </summary>
 		System::ComponentModel::Container ^components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
-		/// Обязательный метод для поддержки конструктора - не изменяйте
-		/// содержимое данного метода при помощи редактора кода.
+		/// РћР±СЏР·Р°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РїРѕРґРґРµСЂР¶РєРё РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂР° - РЅРµ РёР·РјРµРЅСЏР№С‚Рµ
+		/// СЃРѕРґРµСЂР¶РёРјРѕРµ РґР°РЅРЅРѕРіРѕ РјРµС‚РѕРґР° РїСЂРё РїРѕРјРѕС‰Рё СЂРµРґР°РєС‚РѕСЂР° РєРѕРґР°.
 		/// </summary>
 		void InitializeComponent(void)
 		{
@@ -98,6 +99,8 @@ namespace Проект1 {
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->label4 = (gcnew System::Windows::Forms::Label());
 			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->textBox3 = (gcnew System::Windows::Forms::TextBox());
+			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// button1
@@ -106,7 +109,7 @@ namespace Проект1 {
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(115, 56);
 			this->button1->TabIndex = 0;
-			this->button1->Text = L"Отправить";
+			this->button1->Text = L"РћС‚РїСЂР°РІРёС‚СЊ";
 			this->button1->UseVisualStyleBackColor = true;
 			this->button1->Click += gcnew System::EventHandler(this, &MyForm::button1_Click);
 			// 
@@ -117,6 +120,7 @@ namespace Проект1 {
 			this->richTextBox1->Size = System::Drawing::Size(339, 56);
 			this->richTextBox1->TabIndex = 1;
 			this->richTextBox1->Text = L"";
+			this->richTextBox1->TextChanged += gcnew System::EventHandler(this, &MyForm::richTextBox1_TextChanged);
 			// 
 			// textBox1
 			// 
@@ -141,7 +145,7 @@ namespace Проект1 {
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(95, 13);
 			this->label1->TabIndex = 4;
-			this->label1->Text = L"IP-адрес сервера";
+			this->label1->Text = L"IP-Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР°";
 			// 
 			// label2
 			// 
@@ -150,7 +154,7 @@ namespace Проект1 {
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(73, 13);
 			this->label2->TabIndex = 5;
-			this->label2->Text = L"Номер порта";
+			this->label2->Text = L"РќРѕРјРµСЂ РїРѕСЂС‚Р°";
 			// 
 			// button2
 			// 
@@ -158,7 +162,7 @@ namespace Проект1 {
 			this->button2->Name = L"button2";
 			this->button2->Size = System::Drawing::Size(123, 50);
 			this->button2->TabIndex = 6;
-			this->button2->Text = L"Соединиться";
+			this->button2->Text = L"РЎРѕРµРґРёРЅРёС‚СЊСЃСЏ";
 			this->button2->UseVisualStyleBackColor = true;
 			this->button2->Click += gcnew System::EventHandler(this, &MyForm::button2_Click);
 			// 
@@ -178,7 +182,7 @@ namespace Проект1 {
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(26, 13);
 			this->label3->TabIndex = 8;
-			this->label3->Text = L"Чат";
+			this->label3->Text = L"Р§Р°С‚";
 			// 
 			// label4
 			// 
@@ -187,7 +191,7 @@ namespace Проект1 {
 			this->label4->Name = L"label4";
 			this->label4->Size = System::Drawing::Size(65, 13);
 			this->label4->TabIndex = 9;
-			this->label4->Text = L"Сообщение";
+			this->label4->Text = L"РЎРѕРѕР±С‰РµРЅРёРµ";
 			// 
 			// label5
 			// 
@@ -198,11 +202,30 @@ namespace Проект1 {
 			this->label5->TabIndex = 10;
 			this->label5->Text = L" ";
 			// 
+			// textBox3
+			// 
+			this->textBox3->Location = System::Drawing::Point(116, 78);
+			this->textBox3->Name = L"textBox3";
+			this->textBox3->Size = System::Drawing::Size(129, 20);
+			this->textBox3->TabIndex = 11;
+			this->textBox3->TextChanged += gcnew System::EventHandler(this, &MyForm::textBox3_TextChanged);
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Location = System::Drawing::Point(83, 81);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(27, 13);
+			this->label6->TabIndex = 12;
+			this->label6->Text = L"РќРёРє";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(484, 424);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->textBox3);
 			this->Controls->Add(this->label5);
 			this->Controls->Add(this->label4);
 			this->Controls->Add(this->label3);
@@ -234,51 +257,72 @@ namespace Проект1 {
 
 	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
 	
-			if (textBox1->Text == "127.0.0.1"){
+			//if (textBox1->Text == "127.0.0.1"){
 				button1->Enabled = true;
 				richTextBox1->Enabled = true;
-				label5->Text = "Вы подключились";
-				/*Подключаемся к серверу и отправляем сообщение на сервер*/
+				label5->Text = "Р’С‹ РїРѕРґРєР»СЋС‡РёР»РёСЃСЊ";
+				/*РџРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє СЃРµСЂРІРµСЂСѓ Рё РѕС‚РїСЂР°РІР»СЏРµРј СЃРѕРѕР±С‰РµРЅРёРµ РЅР° СЃРµСЂРІРµСЂ*/
 				WSAStartup(MAKEWORD(2, 0), &WSAData);
 				server = socket(AF_INET, SOCK_STREAM, 0);
 
-				/*Указываем IP-адрес сокета,
-				к которому он должен подключиться и порт*/
+				/*РЈРєР°Р·С‹РІР°РµРј IP-Р°РґСЂРµСЃ СЃРѕРєРµС‚Р°,
+				Рє РєРѕС‚РѕСЂРѕРјСѓ РѕРЅ РґРѕР»Р¶РµРЅ РїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рё РїРѕСЂС‚*/
 				addr.sin_addr.s_addr = inet_addr(ServerIP);
 				addr.sin_family = AF_INET;
 				addr.sin_port = htons(Port);
 				connect(server, (SOCKADDR *)&addr, sizeof(addr));
-				char m[10];
+				//char m[10];
 			
-				recv(server, m, 10, 0);
+				//recv(server, m, 10, 0);
 				//char masiv[1024];
 				/*for (int i = 0; i < 1024; i++){
 					buffer[i] = 0;
 				}*/
-				String^ name = "";
+			/*	String^ name = "";
 				for (int i = 0; i < 11; i++){
 					name += Convert::ToChar(m[i]);
 
 				}
 
-				richTextBox2->AppendText(name);
-			}
-			else label5->Text = "Неправильные данные";
+				richTextBox2->AppendText(name);*/
+			//}
+			//else label5->Text = "РќРµРїСЂР°РІРёР»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ";
 		
 	}
 
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
-		send(server, buffer, sizeof(buffer), 0);
-		
-		richTextBox2->Text = "Сообщение:";
+		String^ nickname = " ";
+		nickname += textBox3->Text;
+		textBox3->Text = "";
+		String^ masiv = nickname+":"+" ";
+		masiv += richTextBox1->Text;
+		richTextBox1->Text = "";
+		char buffer[1024];
+		for (int i = 0; i < 1024; i++){
+			buffer[i] = 0;
+		}
+		for (int i = 0; i < masiv->Length; i++){
+			buffer[i] = masiv[i];
+		}
+		for (int i = 0; i < 1024; i++){
+		//	masiv += Convert::ToChar(buffer[i]);
+			
+		}
+		send(server, buffer, 1024, 0); //РѕС‚РїСЂР°РІР»СЏРµРј РЅР° СЃРµСЂРІРµСЂ
 
+		richTextBox2->AppendText(masiv);
 
-		/*Для завершения работы с сокетами*/
+		/*Р”Р»СЏ Р·Р°РІРµСЂС€РµРЅРёСЏ СЂР°Р±РѕС‚С‹ СЃ СЃРѕРєРµС‚Р°РјРё*/
 		closesocket(server);
 		WSACleanup();
-		printf("Завершение");
+		printf("Р—Р°РІРµСЂС€РµРЅРёРµ");
 	}
 private: System::Void richTextBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+
+}
+private: System::Void richTextBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
+}
+private: System::Void textBox3_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
 }
 };
