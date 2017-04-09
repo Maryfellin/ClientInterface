@@ -1,14 +1,22 @@
-﻿#pragma once
-#pragma comment( lib, "ws2_32.lib" )
+﻿#pragma comment( lib, "ws2_32.lib" )
 #include <iostream>
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
 #include <locale.h>
 #include <winsock2.h>
+
 using namespace std;
 
+SOCKET Connection;
+
+enum Packet
+{
+	P_ChatMessage,
+	P_Test
+};
 namespace Проект1 {
+
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -16,16 +24,54 @@ namespace Проект1 {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+	using namespace System::Threading;
+
+	WSADATA WSAData;
+	SOCKADDR_IN addr;
+	SOCKET my_sock;
 
 	char ServerIP[] = "127.0.0.1";
 	char port[] = "1509";
 	int Port = atoi(port);
 
-	
-	//char buffer[1024] = "hello";
-	SOCKET server;
-	WSADATA WSAData;
-	SOCKADDR_IN addr;
+	bool ProcessPacket(Packet packettype)
+	{
+		switch (packettype)
+		{
+		case P_ChatMessage:
+		{
+			int bufferlength; //длина сообщения
+			recv(Connection, (char*)&bufferlength, sizeof(int), NULL); //Буфер приема
+			char * buffer = new char[bufferlength + 1]; //Выделяем буфер
+			buffer[bufferlength] = '\0';
+			recv(Connection, buffer, bufferlength, NULL);
+
+			printf (buffer); //печатаем
+			delete[] buffer; //удаляем буфер
+			break;
+		}
+		case P_Test:
+			printf ("Вы получили тестовый пакет!\n");
+			break;
+		default:
+			printf ("Неизвестный пакет: ", packettype);
+			break;
+		}
+		return true;
+	}
+
+	void ClientThread()
+	{
+		Packet packettype;
+		while (true)
+		{
+			//Сначала получаем тип пакета
+			recv(Connection, (char*)&packettype, sizeof(Packet), NULL); //Получение типа пакета с сервера
+
+			if (!ProcessPacket(packettype)) //Если пакет неправильно обработан
+				break; //выход из цикла
+		}
+	}
 
 	/// <summary>
 	/// Сводка для MyForm
@@ -73,13 +119,15 @@ namespace Проект1 {
 	private: System::Windows::Forms::Label^  label5;
 	private: System::Windows::Forms::TextBox^  textBox3;
 	private: System::Windows::Forms::Label^  label6;
+
+	private: System::ComponentModel::IContainer^  components;
 	protected:
 
 	private:
 		/// <summary>
 		/// Требуется переменная конструктора.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -88,6 +136,7 @@ namespace Проект1 {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^  resources = (gcnew System::ComponentModel::ComponentResourceManager(MyForm::typeid));
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->richTextBox1 = (gcnew System::Windows::Forms::RichTextBox());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
@@ -201,6 +250,7 @@ namespace Проект1 {
 			this->label5->Size = System::Drawing::Size(10, 13);
 			this->label5->TabIndex = 10;
 			this->label5->Text = L" ";
+			this->label5->Click += gcnew System::EventHandler(this, &MyForm::label5_Click);
 			// 
 			// textBox3
 			// 
@@ -223,6 +273,7 @@ namespace Проект1 {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"$this.BackgroundImage")));
 			this->ClientSize = System::Drawing::Size(484, 424);
 			this->Controls->Add(this->label6);
 			this->Controls->Add(this->textBox3);
@@ -243,10 +294,24 @@ namespace Проект1 {
 			this->PerformLayout();
 
 		}
+		/*функция приема сообщений 1
+		void recvMessage(){
+			char buffer2[1024];
+			recv(Connection, buffer2, 1024, 0);
+			String^ bufname = "";           //имя строки буфера
 
+			for (int i = 0; i < 1024; i++){
+				bufname += buffer2[i];
+			}
+			richTextBox2->AppendText(bufname);
+
+		};*/
+	String^ nickname = ""; //ник пользователя
 
 
 #pragma endregion
+
+
 	private: System::Void textBox1_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
 		}
@@ -254,68 +319,62 @@ namespace Проект1 {
 
 }
 
-
 	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
-	
-			//if (textBox1->Text == "127.0.0.1"){
-				button1->Enabled = true;
-				richTextBox1->Enabled = true;
-				label5->Text = "Вы подключились";
-				/*Подключаемся к серверу и отправляем сообщение на сервер*/
-				WSAStartup(MAKEWORD(2, 0), &WSAData);
-				server = socket(AF_INET, SOCK_STREAM, 0);
+		setlocale(LC_ALL, "russian");
+		nickname += textBox3->Text;
+		textBox3->Text = "";
+		button1->Enabled = true;
+		richTextBox1->Enabled = true;
+		//Подключаемся к серверу и отправляем сообщение на сервер
+		WSAStartup(MAKEWORD(2, 0), &WSAData);
+		//server = socket(AF_INET, SOCK_STREAM, 0);
 
-				/*Указываем IP-адрес сокета,
-				к которому он должен подключиться и порт*/
-				addr.sin_addr.s_addr = inet_addr(ServerIP);
-				addr.sin_family = AF_INET;
-				addr.sin_port = htons(Port);
-				connect(server, (SOCKADDR *)&addr, sizeof(addr));
-				//char m[10];
-			
-				//recv(server, m, 10, 0);
-				//char masiv[1024];
-				/*for (int i = 0; i < 1024; i++){
-					buffer[i] = 0;
-				}*/
-			/*	String^ name = "";
-				for (int i = 0; i < 11; i++){
-					name += Convert::ToChar(m[i]);
+		SOCKADDR_IN addr;
+		int sizeofaddr = sizeof(addr);
+		addr.sin_addr.s_addr = inet_addr(ServerIP);
+		addr.sin_family = AF_INET;
+		addr.sin_port = htons(Port);
+		//connect(server, (SOCKADDR *)&addr, sizeof(addr));
+		Connection = socket(AF_INET, SOCK_STREAM, NULL); //Установить гнездо подключения
+		if (connect(Connection, (SOCKADDR*)&addr, sizeofaddr) != 0) //Если мы не можем подключиться...
+		{
+			label4->Text = "Нет подключения!";
 
-				}
+		}
 
-				richTextBox2->AppendText(name);*/
-			//}
-			//else label5->Text = "Неправильные данные";
-		
+		label5->Text = "Подключён!";
+		/*Создание клиентского потока, который получает все данные, отправляемые сервером*/
+		CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientThread, NULL, NULL, NULL); 
+
+
 	}
 
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
-		String^ nickname = " ";
-		nickname += textBox3->Text;
-		textBox3->Text = "";
-		String^ masiv = nickname+":"+" ";
-		masiv += richTextBox1->Text;
-		richTextBox1->Text = "";
+
+
+		String^ user = nickname + ":" + " "; //строка
+		user += richTextBox1->Text;
+		user += "\n";
 		char buffer[1024];
+		int bufferlength = user->Length;
+
 		for (int i = 0; i < 1024; i++){
 			buffer[i] = 0;
 		}
-		for (int i = 0; i < masiv->Length; i++){
-			buffer[i] = masiv[i];
+		for (int i = 0; i < bufferlength; i++){
+			buffer[i] = user[i];
 		}
-		for (int i = 0; i < 1024; i++){
-		//	masiv += Convert::ToChar(buffer[i]);
-			
-		}
-		send(server, buffer, 1024, 0); //отправляем на сервер
 
-		richTextBox2->AppendText(masiv);
 
-		/*Для завершения работы с сокетами*/
-		closesocket(server);
-		WSACleanup();
-		printf("Завершение");
+		Packet chatmessagepacket = P_ChatMessage;
+		send(Connection, (char*)&chatmessagepacket, sizeof(Packet), NULL); //Отправить тип пакета: ChatMessage
+		send(Connection, (char*)&bufferlength, sizeof(int), NULL); //Отправить длину буфера
+		send(Connection, buffer, bufferlength, NULL); //Отправить буфер
+
+		richTextBox2->AppendText(user);
+		richTextBox1->Clear();
+		Sleep(10);
+		
 	}
 private: System::Void richTextBox2_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
@@ -324,6 +383,8 @@ private: System::Void richTextBox1_TextChanged(System::Object^  sender, System::
 }
 private: System::Void textBox3_TextChanged(System::Object^  sender, System::EventArgs^  e) {
 
+}
+private: System::Void label5_Click(System::Object^  sender, System::EventArgs^  e) {
 }
 };
 }
